@@ -73,6 +73,19 @@
         echo "</ul>";
     ?>
 
+    <!-- EJERCICIO 4 -->
+    <h2>Ejercicio 4</h2>
+    <?php
+        echo "<h4>Respuesta:</h4>";
+        echo "<ul>";
+        $GLOBALS['a'] = "Valor con GLOBALS";
+        $GLOBALS['b'] = 2025;
+        echo "a = ".$GLOBALS['a']."<br>";
+        echo "b = ".$GLOBALS['b']."<br>";
+        unset($GLOBALS['a'],$GLOBALS['b']);
+        echo "</ul>";
+    ?>
+
 
 
 
