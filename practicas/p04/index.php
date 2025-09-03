@@ -86,6 +86,34 @@
         echo "</ul>";
     ?>
 
+    <h2>Ejercicio 5</h2>
+    <p>Dar el valor de las variables $a, $b, $c al final del siguiente script:</p>
+
+    <?php
+        // Script del ejercicio
+        $a = "7 personas";
+        $b = (integer) $a; 
+        $a = "9E3";
+        $c = (double) $a; 
+
+        echo '<h3>Valores finales de las variables</h3>';
+        
+        echo '<p><strong>Valor final de $a:</strong> ';
+        var_dump($a);
+        echo '</p>';
+
+        echo '<p><strong>Valor final de $b:</strong> ';
+        var_dump($b);
+        echo '</p>';
+        
+        echo '<p><strong>Valor final de $c:</strong> ';
+        var_dump($c);
+        echo '</p>';
+
+        // Liberar las variables (opcional)
+        unset($a, $b, $c);
+    ?>
+
 
 
 
