@@ -138,6 +138,25 @@
         echo "<p>Valor de \$e con echo: " . var_export($e, true) . "</p>";
     ?>
 
+    <h2>Ejercicio 7</h2>
+
+    <?php
+        // a) Versión de Apache y PHP
+        echo "<p><strong>a)</strong> Versión de Apache y PHP:</p>";
+        echo "<ul>";
+        echo "<li>Servidor (Apache/PHP): " . $_SERVER['SERVER_SOFTWARE'] . "</li>";
+        echo "<li>Versión de PHP: " . phpversion() . "</li>";
+        echo "</ul>";
+
+        // b) Nombre del sistema operativo (servidor)
+        echo "<p><strong>b)</strong> Nombre del sistema operativo (servidor):</p>";
+        echo "<p>" . PHP_OS . "</p>";
+
+        // c) Idioma del navegador (cliente)
+        echo "<p><strong>c)</strong> Idioma del navegador (cliente):</p>";
+        echo "<p>" . $_SERVER['HTTP_ACCEPT_LANGUAGE'] . "</p>";
+    ?>
+
 
 
 
