@@ -113,6 +113,30 @@
         // Liberar las variables (opcional)
         unset($a, $b, $c);
     ?>
+    <h2>Ejercicio 6</h2>
+    <p>Dar y comprobar el valor booleano de las variables $a, $b, $c, $d, $e y $f usando <code>var_dump()</code>:</p>
+
+    <?php
+        $a = "0";
+        $b = "TRUE";
+        $c = FALSE;
+        $d = ($a OR $b);
+        $e = ($a AND $c);
+        $f = ($a XOR $b);
+
+        echo "<h3>Valores con var_dump()</h3>";
+        echo "<p>\$a = "; var_dump($a); echo "</p>";
+        echo "<p>\$b = "; var_dump($b); echo "</p>";
+        echo "<p>\$c = "; var_dump($c); echo "</p>";
+        echo "<p>\$d = "; var_dump($d); echo "</p>";
+        echo "<p>\$e = "; var_dump($e); echo "</p>";
+        echo "<p>\$f = "; var_dump($f); echo "</p>";
+
+        // Transformar booleanos a texto con var_export o intval
+        echo "<h3>Mostrar booleanos con echo</h3>";
+        echo "<p>Valor de \$c con echo: " . var_export($c, true) . "</p>";
+        echo "<p>Valor de \$e con echo: " . var_export($e, true) . "</p>";
+    ?>
 
 
 
