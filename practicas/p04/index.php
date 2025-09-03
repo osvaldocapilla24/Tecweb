@@ -54,6 +54,26 @@
         // <-- Inciso d)
         echo "</ul>";
     ?>
+    <!-- EJERCICIO 3 -->
+    <h2>Ejercicio 3</h2>
+    <?php
+        echo "<h4>Respuesta:</h4>"; 
+        echo "<ul>";
+        $a = "PHP5";
+        $z[] = &$a;
+        $b = "5a version de PHP";
+        $c = (int)$b * 10;   // fuerza conversión a entero
+        $a .= $b;       // concatena
+        $b *= $c;       // multiplica
+        $z[0] = "MySQL";
+        echo "<pre>";
+        var_dump($a,$b,$c,$z);
+        echo "</pre>";
+        unset($a,$b,$c,$z);
+        echo "</ul>";
+    ?>
+
+
 
 
 
