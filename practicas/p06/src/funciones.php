@@ -46,7 +46,7 @@
         } while ($x % $n != 0);
         return [$x, $contador];
     }
-
+    //ejercicio4
     function arregloAscii() {
     $html = "<h3>Arreglo ASCII (97..122) — letras a..z</h3>";
     $html .= "<table border='1' cellpadding='6' cellspacing='0'>";
@@ -57,6 +57,23 @@
     $html .= "</tbody></table>";
     return $html;
     }
+
+    function verificar_edad_sexo($edad, $sexo) {
+    if (!is_numeric($edad)) return "Edad inválida.";
+    $edad = intval($edad);
+    $sexo = strtolower(trim($sexo));
+
+    if ($sexo === 'femenino' || $sexo === 'f') {
+        if ($edad >= 18 && $edad <= 35) {
+            return "Bienvenida, usted está en el rango de edad permitido.";
+        } else {
+            return "Lo siento, su edad no está en el rango permitido (18–35).";
+        }
+    } else {
+        return "No cumple el requisito: no es persona de sexo femenino.";
+    }
+ }
+
 
 
     

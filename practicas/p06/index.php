@@ -64,6 +64,27 @@
         }
     ?>
 
+    <h2>Ejercicio 5</h2>
+    <p>Usar las variables $edad y $sexo en una instrucción if para identificar una persona de
+    sexo “femenino”, cuya edad oscile entre los 18 y 35 años y mostrar un mensaje de
+    bienvenida apropiado.</p>
+    <form method="post">
+    <input type="hidden" name="accion" value="ej5">
+    <label>Edad: <input type="number" name="edad" required></label><br>
+    <label>Sexo:
+        <select name="sexo">
+            <option value="femenino">Femenino</option>
+            <option value="masculino">Masculino</option>
+        </select>
+    </label><br>
+    <input type="submit" value="Verificar">
+    </form>
+    <?php
+    if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"]) && $_POST["accion"] === "ej5") {
+    echo "<p><strong>Resultado:</strong> " . verificar_edad_sexo($_POST["edad"], $_POST["sexo"]) . "</p>";
+    }
+?>
+
     <h2>Ejemplo de POST</h2>
     <form action="http://localhost/tecweb/practicas/p04/index.php" method="post">
         Name: <input type="text" name="name"><br>
