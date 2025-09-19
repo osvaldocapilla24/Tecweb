@@ -83,22 +83,35 @@
     if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"]) && $_POST["accion"] === "ej5") {
     echo "<p><strong>Resultado:</strong> " . verificar_edad_sexo($_POST["edad"], $_POST["sexo"]) . "</p>";
     }
-?>
+    ?>
 
-    <h2>Ejemplo de POST</h2>
-    <form action="http://localhost/tecweb/practicas/p04/index.php" method="post">
-        Name: <input type="text" name="name"><br>
-        E-mail: <input type="text" name="email"><br>
-        <input type="submit">
+
+    <h2>Ejercicio 6 </h2>
+    <p>Crea en código duro un arreglo asociativo que sirva para registrar el parque vehicular de
+    una ciudad. Cada vehículo debe ser identificado</p>
+    <form method="post">
+    <input type="hidden" name="accion" value="ej6">
+    <label>Matrícula: <input type="text" name="matricula"></label>
+    <input type="submit" value="Buscar">
     </form>
-    <br>
     <?php
-        if(isset($_POST["name"]) && isset($_POST["email"]))
-        {
-            echo $_POST["name"];
-            echo '<br>';
-            echo $_POST["email"];
+    if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"]) && $_POST["accion"] === "ej6") {
+    $matricula = strtoupper(trim($_POST["matricula"] ?? ''));
+    if ($matricula === "TODOS") {
+        echo "<h3>Listado completo</h3><pre>";
+        print_r(registro_parque_vehicular());
+        echo "</pre>";
+    } else {
+        $res = buscar_por_matricula($matricula);
+        if ($res) {
+            echo "<h3>Datos de $matricula</h3><pre>";
+            print_r($res);
+            echo "</pre>";
+        } else {
+            echo "<p>No se encontró la matrícula $matricula</p>";
         }
+    }
+    }
     ?>
 </body>
 </html>
