@@ -47,6 +47,17 @@
         return [$x, $contador];
     }
 
+    function arregloAscii() {
+    $html = "<h3>Arreglo ASCII (97..122) — letras a..z</h3>";
+    $html .= "<table border='1' cellpadding='6' cellspacing='0'>";
+    $html .= "<thead><tr><th>Código</th><th>Carácter</th></tr></thead><tbody>";
+    for ($code = 97; $code <= 122; $code++) {
+        $html .= "<tr><td>{$code}</td><td>" . htmlspecialchars(chr($code)) . "</td></tr>";
+    }
+    $html .= "</tbody></table>";
+    return $html;
+    }
+
 
     
     ?>
