@@ -14,7 +14,7 @@
 	if (!empty($tope))
 	{
 		/** SE CREA EL OBJETO DE CONEXION */
-		@$link = new mysqli('localhost', 'root', 'osvaldo2408', 'marketzone');
+		@$link = new mysqli('localhost', 'root', '', 'marketzone');
         /** NOTA: con @ se suprime el Warning para gestionar el error por medio de código */
 
 		/** comprobar la conexión */
