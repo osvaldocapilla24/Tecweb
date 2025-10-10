@@ -12,7 +12,7 @@ if (!is_numeric($tope)) {
 }
 
 /** Conexión a la BD */
-@$link = new mysqli('localhost', 'root', '', 'marketzone');
+@$link = new mysqli('localhost', 'root', '12345678a', 'marketzone');
 if ($link->connect_errno) {
     die('Falló la conexión: '.$link->connect_error.'<br/>');
 }
