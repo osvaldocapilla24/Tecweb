@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $imagen = trim($_POST["imagen"]);
     if ($imagen === "") $imagen = "img/default.png";
 
-    // Validaciones en el servidor (por seguridad)
+    // Validaciones en el servidor
     if ($nombre === "" || strlen($nombre) > 100) {
         $mensaje = "❌ El nombre es requerido y debe tener máximo 100 caracteres.";
     } elseif ($marca === "") {
@@ -33,19 +33,34 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } elseif ($unidades < 0) {
         $mensaje = "❌ Las unidades deben ser mayores o iguales a 0.";
     } else {
-        // Insertar en la base de datos
-        $sql = "INSERT INTO productos (nombre, marca, modelo, precio, detalles, unidades, imagen)
-                VALUES ('$nombre', '$marca', '$modelo', '$precio', '$detalles', '$unidades', '$imagen')";
-        if ($conn->query($sql)) {
-            $mensaje = "✅ Reloj guardado correctamente.";
+        // --- Verificar si el reloj ya existe ---
+        $check = $conn->prepare("SELECT COUNT(*) FROM productos WHERE nombre=? AND marca=? AND modelo=?");
+        $check->bind_param("sss", $nombre, $marca, $modelo);
+        $check->execute();
+        $check->bind_result($existe);
+        $check->fetch();
+        $check->close();
+
+        if ($existe > 0) {
+            $mensaje = "⚠️ Ya existe un reloj con el mismo nombre, marca y modelo. No se guardó de nuevo.";
         } else {
-            $mensaje = "❌ Error al guardar: " . $conn->error;
+            // --- Insertar en la base de datos ---
+            $stmt = $conn->prepare("INSERT INTO productos (nombre, marca, modelo, precio, detalles, unidades, imagen) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssdsis", $nombre, $marca, $modelo, $precio, $detalles, $unidades, $imagen);
+
+            if ($stmt->execute()) {
+                $mensaje = "✅ Reloj guardado correctamente.";
+            } else {
+                $mensaje = "❌ Error al guardar: " . $stmt->error;
+            }
+            $stmt->close();
         }
     }
 
     $conn->close();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
