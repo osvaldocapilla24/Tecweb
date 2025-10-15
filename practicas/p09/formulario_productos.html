@@ -2,60 +2,81 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Registro de Productos</title>
+<title>Registro de Relojes - TimeZone</title>
 <script>
 function validarFormulario() {
   const nombre = document.getElementById("nombre").value.trim();
-  const marca = document.getElementById("marca").value.trim();
+  const marca = document.getElementById("marca").value;
   const modelo = document.getElementById("modelo").value.trim();
   const precio = parseFloat(document.getElementById("precio").value);
   const detalles = document.getElementById("detalles").value.trim();
   const unidades = parseInt(document.getElementById("unidades").value);
   const imagen = document.getElementById("imagen").value.trim();
 
+  // a) Nombre
   if (nombre === "" || nombre.length > 100) {
-    alert("El nombre es requerido (máx. 100 caracteres).");
+    alert("El nombre del reloj es requerido (máximo 100 caracteres).");
     return false;
   }
+
+  // b) Marca (debe seleccionarse)
   if (marca === "") {
-    alert("La marca es requerida.");
+    alert("Selecciona una marca de reloj.");
     return false;
   }
+
+  // c) Modelo
   const regexModelo = /^[a-zA-Z0-9]+$/;
   if (!regexModelo.test(modelo) || modelo.length > 25) {
-    alert("Modelo inválido (solo alfanumérico, máx. 25 caracteres).");
+    alert("El modelo debe ser alfanumérico (máx. 25 caracteres).");
     return false;
   }
+
+  // d) Precio
   if (isNaN(precio) || precio <= 99.99) {
-    alert("El precio debe ser mayor a 99.99.");
+    alert("El precio debe ser mayor a $99.99.");
     return false;
   }
+
+  // e) Detalles
   if (detalles.length > 250) {
     alert("Los detalles no pueden exceder 250 caracteres.");
     return false;
   }
+
+  // f) Unidades
   if (isNaN(unidades) || unidades < 0) {
     alert("Las unidades deben ser 0 o más.");
     return false;
   }
+
+  // g) Imagen
   if (imagen === "") {
     document.getElementById("imagen").value = "img/default.png";
   }
 
-  alert("Formulario validado correctamente (listo para enviar).");
+  alert("Formulario validado correctamente. ¡Listo para enviar!");
   return true;
 }
 </script>
 </head>
 <body>
-<h2>Registrar nuevo producto</h2>
+<h2>Registrar nuevo reloj</h2>
+
 <form action="#" method="post" onsubmit="return validarFormulario()">
 
-  <label>Nombre:</label><br>
+  <label>Nombre del reloj:</label><br>
   <input type="text" id="nombre" name="nombre"><br><br>
 
   <label>Marca:</label><br>
-  <input type="text" id="marca" name="marca"><br><br>
+  <select id="marca" name="marca">
+    <option value="">Seleccione una marca</option>
+    <option value="Casio">Casio</option>
+    <option value="Rolex">Rolex</option>
+    <option value="Seiko">Seiko</option>
+    <option value="Citizen">Citizen</option>
+    <option value="Fossil">Fossil</option>
+  </select><br><br>
 
   <label>Modelo:</label><br>
   <input type="text" id="modelo" name="modelo"><br><br>
@@ -64,15 +85,15 @@ function validarFormulario() {
   <input type="number" id="precio" name="precio" step="0.01"><br><br>
 
   <label>Detalles:</label><br>
-  <textarea id="detalles" name="detalles"></textarea><br><br>
+  <textarea id="detalles" name="detalles" maxlength="250" placeholder="Ejemplo: Reloj análogo con correa de acero inoxidable."></textarea><br><br>
 
-  <label>Unidades:</label><br>
+  <label>Unidades en existencia:</label><br>
   <input type="number" id="unidades" name="unidades"><br><br>
 
-  <label>Imagen:</label><br>
-  <input type="text" id="imagen" name="imagen"><br><br>
+  <label>Imagen (URL o ruta local):</label><br>
+  <input type="text" id="imagen" name="imagen" placeholder="img/default.png"><br><br>
 
-  <input type="submit" value="Guardar Producto">
+  <input type="submit" value="Guardar Reloj">
 </form>
 </body>
 </html>
