@@ -1,208 +1,123 @@
 <?php
-// ----- PROCESAR FORMULARIO EN PHP -----
-$mensaje = "";
+// ==============================
+// formulario_productos_v2.php
+// ==============================
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Conectarse a la base de datos
-    $conn = new mysqli("localhost", "root", "12345678a", "marketzone");
-    if ($conn->connect_error) {
-        die("Error de conexión: " . $conn->connect_error);
-    }
+// Conexión a la base de datos
+$link = mysqli_connect("localhost", "root", "12345678a", "marketzone");
 
-    // Recibir valores del formulario
-    $nombre = trim($_POST["nombre"]);
-    $marca = trim($_POST["marca"]);
-    $modelo = trim($_POST["modelo"]);
-    $precio = floatval($_POST["precio"]);
-    $detalles = trim($_POST["detalles"]);
-    $unidades = intval($_POST["unidades"]);
-    $imagen = trim($_POST["imagen"]);
-    if ($imagen === "") $imagen = "img/default.png";
-
-    // Validaciones en el servidor
-    if ($nombre === "" || strlen($nombre) > 100) {
-        $mensaje = "❌ El nombre es requerido y debe tener máximo 100 caracteres.";
-    } elseif ($marca === "") {
-        $mensaje = "❌ Debes seleccionar una marca.";
-    } elseif (!preg_match('/^[a-zA-Z0-9]+$/', $modelo) || strlen($modelo) > 25) {
-        $mensaje = "❌ El modelo debe ser alfanumérico y tener máximo 25 caracteres.";
-    } elseif ($precio <= 99.99) {
-        $mensaje = "❌ El precio debe ser mayor a 99.99.";
-    } elseif (strlen($detalles) > 250) {
-        $mensaje = "❌ Los detalles deben tener máximo 250 caracteres.";
-    } elseif ($unidades < 0) {
-        $mensaje = "❌ Las unidades deben ser mayores o iguales a 0.";
-    } else {
-        // --- Verificar si el reloj ya existe ---
-        $check = $conn->prepare("SELECT COUNT(*) FROM productos WHERE nombre=? AND marca=? AND modelo=?");
-        $check->bind_param("sss", $nombre, $marca, $modelo);
-        $check->execute();
-        $check->bind_result($existe);
-        $check->fetch();
-        $check->close();
-
-        if ($existe > 0) {
-            $mensaje = "⚠️ Ya existe un reloj con el mismo nombre, marca y modelo. No se guardó de nuevo.";
-        } else {
-            // --- Insertar en la base de datos ---
-            $stmt = $conn->prepare("INSERT INTO productos (nombre, marca, modelo, precio, detalles, unidades, imagen) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssdsis", $nombre, $marca, $modelo, $precio, $detalles, $unidades, $imagen);
-
-            if ($stmt->execute()) {
-                $mensaje = "✅ Reloj guardado correctamente.";
-            } else {
-                $mensaje = "❌ Error al guardar: " . $stmt->error;
-            }
-            $stmt->close();
-        }
-    }
-
-    $conn->close();
+// Verificar conexión
+if ($link === false) {
+    die("❌ ERROR: No pudo conectarse con la BD. " . mysqli_connect_error());
 }
-?>
 
+// Obtener ID del producto (por GET)
+$id = $_GET['id'] ?? '';
+
+if ($id == '') {
+    die("⚠️ No se especificó el producto a editar.");
+}
+
+// Consultar producto por ID
+$sql = "SELECT * FROM productos WHERE id = $id";
+$result = mysqli_query($link, $sql);
+
+// Verificar si existe
+if (!$result || mysqli_num_rows($result) == 0) {
+    die("⚠️ No se encontró el producto con ID = $id");
+}
+
+$producto = mysqli_fetch_assoc($result);
+mysqli_close($link);
+?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Registrar Reloj (PHP)</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    label { font-weight: bold; }
-    input, select { width: 250px; padding: 5px; margin-top: 4px; }
-    .error { color: red; font-size: 0.9em; margin-top: 3px; display: none; }
-    .input-error { border: 1px solid red; background-color: #ffecec; }
-    #resultado { margin-top: 15px; font-weight: bold; }
-    .exito { color: green; }
-    .fallo { color: red; }
-    input[type="submit"] {
-      background-color: #0078D4;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    input[type="submit"]:hover { background-color: #005ea2; }
-  </style>
-</head>
-<body>
-
-  <h2>Registrar nuevo reloj</h2>
-
-  <form id="formProducto" method="POST" novalidate>
-    <label>Nombre:</label><br>
-    <input type="text" id="nombre" name="nombre" maxlength="100" value="<?php echo $_POST['nombre'] ?? ''; ?>"><br>
-    <div class="error" id="errorNombre"></div><br>
-
-    <label>Marca:</label><br>
-    <select id="marca" name="marca">
-      <option value="">-- Selecciona una marca --</option>
-      <option value="Casio">Casio</option>
-      <option value="Rolex">Rolex</option>
-      <option value="Seiko">Seiko</option>
-      <option value="Citizen">Citizen</option>
-      <option value="Fossil">Fossil</option>
-    </select><br>
-    <div class="error" id="errorMarca"></div><br>
-
-    <label>Modelo:</label><br>
-    <input type="text" id="modelo" name="modelo" maxlength="25" value="<?php echo $_POST['modelo'] ?? ''; ?>"><br>
-    <div class="error" id="errorModelo"></div><br>
-
-    <label>Precio:</label><br>
-    <input type="number" id="precio" name="precio" step="0.01" value="<?php echo $_POST['precio'] ?? ''; ?>"><br>
-    <div class="error" id="errorPrecio"></div><br>
-
-    <label>Detalles:</label><br>
-    <input type="text" id="detalles" name="detalles" maxlength="250" placeholder="Color, tipo de correa, material..." value="<?php echo $_POST['detalles'] ?? ''; ?>"><br>
-    <div class="error" id="errorDetalles"></div><br>
-
-    <label>Unidades:</label><br>
-    <input type="number" id="unidades" name="unidades" min="0" value="<?php echo $_POST['unidades'] ?? ''; ?>"><br>
-    <div class="error" id="errorUnidades"></div><br>
-
-    <label>Imagen:</label><br>
-    <input type="text" id="imagen" name="imagen" placeholder="img/default.png" value="<?php echo $_POST['imagen'] ?? ''; ?>"><br><br>
-
-    <input type="submit" value="Guardar Reloj">
-  </form>
-
-  <?php if ($mensaje): ?>
-    <p id="resultado" class="<?php echo strpos($mensaje, '✅') !== false ? 'exito' : 'fallo'; ?>">
-      <?php echo $mensaje; ?>
-    </p>
-  <?php endif; ?>
-
+  <title>Editar Producto</title>
   <script>
-    // Validación visual en cliente
-    document.getElementById('formProducto').addEventListener('submit', function(e) {
-      document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('input, select').forEach(el => el.classList.remove('input-error'));
+    function validarFormulario() {
+      const nombre = document.forms["formEditar"]["nombre"].value.trim();
+      const marca = document.forms["formEditar"]["marca"].value.trim();
+      const modelo = document.forms["formEditar"]["modelo"].value.trim();
+      const precio = parseFloat(document.forms["formEditar"]["precio"].value);
+      const detalles = document.forms["formEditar"]["detalles"].value.trim();
+      const unidades = parseInt(document.forms["formEditar"]["unidades"].value);
+      const imagen = document.forms["formEditar"]["imagen"].value.trim();
 
-      let valido = true;
+      if (nombre === "" || nombre.length > 100) {
+        alert("❌ El nombre es requerido y debe tener máximo 100 caracteres.");
+        return false;
+      }
 
-      const nombre = document.getElementById('nombre');
-      const marca = document.getElementById('marca');
-      const modelo = document.getElementById('modelo');
-      const precio = parseFloat(document.getElementById('precio').value);
-      const detalles = document.getElementById('detalles');
-      const unidades = parseInt(document.getElementById('unidades').value);
+      if (marca === "" || marca.length > 50) {
+        alert("❌ La marca es requerida y debe tener máximo 50 caracteres.");
+        return false;
+      }
 
       const regexModelo = /^[a-zA-Z0-9]+$/;
-
-      if (nombre.value.trim() === "" || nombre.value.length > 100) {
-        valido = false;
-        nombre.classList.add('input-error');
-        const err = document.getElementById('errorNombre');
-        err.textContent = "El nombre es requerido y debe tener máximo 100 caracteres.";
-        err.style.display = "block";
-      }
-
-      if (marca.value === "") {
-        valido = false;
-        marca.classList.add('input-error');
-        const err = document.getElementById('errorMarca');
-        err.textContent = "Debes seleccionar una marca.";
-        err.style.display = "block";
-      }
-
-      if (!regexModelo.test(modelo.value.trim()) || modelo.value.length > 25) {
-        valido = false;
-        modelo.classList.add('input-error');
-        const err = document.getElementById('errorModelo');
-        err.textContent = "El modelo debe ser alfanumérico y tener máximo 25 caracteres.";
-        err.style.display = "block";
+      if (modelo === "" || !regexModelo.test(modelo) || modelo.length > 25) {
+        alert("❌ El modelo debe ser alfanumérico y de máximo 25 caracteres.");
+        return false;
       }
 
       if (isNaN(precio) || precio <= 99.99) {
-        valido = false;
-        document.getElementById('precio').classList.add('input-error');
-        const err = document.getElementById('errorPrecio');
-        err.textContent = "El precio debe ser mayor a 99.99.";
-        err.style.display = "block";
+        alert("❌ El precio debe ser mayor a 99.99.");
+        return false;
       }
 
-      if (detalles.value.length > 250) {
-        valido = false;
-        detalles.classList.add('input-error');
-        const err = document.getElementById('errorDetalles');
-        err.textContent = "Los detalles deben tener máximo 250 caracteres.";
-        err.style.display = "block";
+      if (detalles.length > 250) {
+        alert("❌ Los detalles deben tener máximo 250 caracteres.");
+        return false;
       }
 
       if (isNaN(unidades) || unidades < 0) {
-        valido = false;
-        document.getElementById('unidades').classList.add('input-error');
-        const err = document.getElementById('errorUnidades');
-        err.textContent = "Las unidades deben ser un número mayor o igual a 0.";
-        err.style.display = "block";
+        alert("❌ Las unidades deben ser un número mayor o igual a 0.");
+        return false;
       }
 
-      if (!valido) e.preventDefault();
-    });
-  </script>
+      if (imagen === "") {
+        document.forms["formEditar"]["imagen"].value = "img/default.png";
+      }
 
+      return true;
+    }
+  </script>
+</head>
+<body>
+  <h2>Editar Producto</h2>
+
+  <form name="formEditar" 
+        action="update_producto.php" 
+        method="post" 
+        onsubmit="return validarFormulario()">
+
+    <!-- Campo oculto con el ID -->
+    <input type="hidden" name="id" value="<?php echo $producto['id']; ?>">
+
+    <label>Nombre:</label><br>
+    <input type="text" name="nombre" value="<?php echo $producto['nombre']; ?>" required><br><br>
+
+    <label>Marca:</label><br>
+    <input type="text" name="marca" value="<?php echo $producto['marca']; ?>" required><br><br>
+
+    <label>Modelo:</label><br>
+    <input type="text" name="modelo" value="<?php echo $producto['modelo']; ?>" required><br><br>
+
+    <label>Precio:</label><br>
+    <input type="number" step="0.01" name="precio" value="<?php echo $producto['precio']; ?>" required><br><br>
+
+    <label>Detalles (opcional):</label><br>
+    <input type="text" name="detalles" value="<?php echo $producto['detalles']; ?>"><br><br>
+
+    <label>Unidades:</label><br>
+    <input type="number" name="unidades" value="<?php echo $producto['unidades']; ?>" required><br><br>
+
+    <label>Imagen (opcional):</label><br>
+    <input type="text" name="imagen" value="<?php echo $producto['imagen']; ?>"><br><br>
+
+    <input type="submit" value="Actualizar Producto">
+  </form>
 </body>
 </html>
