@@ -115,17 +115,100 @@ function buscarID(e) {
 }
 
 // FUNCIÓN CALLBACK DE BOTÓN "Agregar Producto"
+// FUNCIÓN CALLBACK DE BOTÓN "Agregar Producto"
 function agregarProducto(e) {
     e.preventDefault();
 
-    // SE OBTIENE DESDE EL FORMULARIO EL JSON A ENVIAR
+    // SE OBTIENE EL NOMBRE DEL PRODUCTO
+    var nombre = document.getElementById('name').value.trim();
+    
+    // SE OBTIENE EL JSON DEL PRODUCTO
     var productoJsonString = document.getElementById('description').value;
-    // SE CONVIERTE EL JSON DE STRING A OBJETO
-    var finalJSON = JSON.parse(productoJsonString);
-    // SE AGREGA AL JSON EL NOMBRE DEL PRODUCTO
-    finalJSON['nombre'] = document.getElementById('name').value;
-    // SE OBTIENE EL STRING DEL JSON FINAL
-    productoJsonString = JSON.stringify(finalJSON,null,2);
+    var productoJson;
+    
+    // VALIDAR QUE EL JSON SEA VÁLIDO
+    try {
+        productoJson = JSON.parse(productoJsonString);
+    } catch (error) {
+        window.alert('Error: El JSON no es válido');
+        return;
+    }
+    
+    // a. VALIDAR NOMBRE: requerido y máximo 100 caracteres
+    if (nombre === '') {
+        window.alert('Error: El nombre es requerido');
+        return;
+    }
+    if (nombre.length > 100) {
+        window.alert('Error: El nombre debe tener 100 caracteres o menos');
+        return;
+    }
+    
+    // b. VALIDAR MARCA: requerida (debe ser seleccionada de lista)
+    if (!productoJson.marca || productoJson.marca.trim() === '' || productoJson.marca === 'NA') {
+        window.alert('Error: La marca es requerida');
+        return;
+    }
+    
+    // c. VALIDAR MODELO: requerido, alfanumérico, máximo 25 caracteres
+    if (!productoJson.modelo || productoJson.modelo.trim() === '') {
+        window.alert('Error: El modelo es requerido');
+        return;
+    }
+    // Validar que sea alfanumérico (letras, números, guiones, espacios)
+    var regexAlfanumerico = /^[a-zA-Z0-9\s\-]+$/;
+    if (!regexAlfanumerico.test(productoJson.modelo)) {
+        window.alert('Error: El modelo debe ser alfanumérico');
+        return;
+    }
+    if (productoJson.modelo.length > 25) {
+        window.alert('Error: El modelo debe tener 25 caracteres o menos');
+        return;
+    }
+    
+    // d. VALIDAR PRECIO: requerido y mayor a 99.99
+    if (!productoJson.precio || productoJson.precio === '') {
+        window.alert('Error: El precio es requerido');
+        return;
+    }
+    var precio = parseFloat(productoJson.precio);
+    if (isNaN(precio) || precio <= 99.99) {
+        window.alert('Error: El precio debe ser mayor a 99.99');
+        return;
+    }
+    
+    // e. VALIDAR DETALLES: opcional, pero máximo 250 caracteres si se usa
+    if (productoJson.detalles) {
+        if (productoJson.detalles.length > 250) {
+            window.alert('Error: Los detalles deben tener 250 caracteres o menos');
+            return;
+        }
+    } else {
+        // Si no vienen detalles, asignar valor por defecto
+        productoJson.detalles = 'NA';
+    }
+    
+    // f. VALIDAR UNIDADES: requeridas y mayor o igual a 0
+    if (productoJson.unidades === undefined || productoJson.unidades === '') {
+        window.alert('Error: Las unidades son requeridas');
+        return;
+    }
+    var unidades = parseInt(productoJson.unidades);
+    if (isNaN(unidades) || unidades < 0) {
+        window.alert('Error: Las unidades deben ser mayor o igual a 0');
+        return;
+    }
+    
+    // g. VALIDAR IMAGEN: opcional, pero usar default si no se proporciona
+    if (!productoJson.imagen || productoJson.imagen.trim() === '') {
+        productoJson.imagen = 'img/default.png';
+    }
+    
+    // SI TODAS LAS VALIDACIONES PASAN, SE AGREGA EL NOMBRE AL JSON
+    productoJson.nombre = nombre;
+    
+    // SE CONVIERTE DE NUEVO A STRING
+    productoJsonString = JSON.stringify(productoJson);
 
     // SE CREA EL OBJETO DE CONEXIÓN ASÍNCRONA AL SERVIDOR
     var client = getXMLHttpRequest();
@@ -135,6 +218,18 @@ function agregarProducto(e) {
         // SE VERIFICA SI LA RESPUESTA ESTÁ LISTA Y FUE SATISFACTORIA
         if (client.readyState == 4 && client.status == 200) {
             console.log(client.responseText);
+            
+            // SE PARSEA LA RESPUESTA
+            let respuesta = JSON.parse(client.responseText);
+            
+            // SE MUESTRA EL MENSAJE EN UN ALERT
+            window.alert(respuesta.message);
+            
+            // SI FUE EXITOSO, LIMPIAR FORMULARIO
+            if (respuesta.status === 'success') {
+                document.getElementById('name').value = '';
+                document.getElementById('description').value = JSON.stringify(baseJSON, null, 2);
+            }
         }
     };
     client.send(productoJsonString);
