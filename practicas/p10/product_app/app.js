@@ -6,15 +6,69 @@ var baseJSON = {
     "marca": "NA",
     "detalles": "NA",
     "imagen": "img/default.png"
-  };
+};
 
-// FUNCIÓN CALLBACK DE BOTÓN "Buscar"
+// FUNCIÓN CALLBACK DE BOTÓN "Buscar Producto" (NUEVA)
+function buscarProducto(e) {
+    e.preventDefault();
+
+    // SE OBTIENE EL TEXTO A BUSCAR
+    var search = document.getElementById('search').value;
+
+    console.log('Buscando: ' + search); // PARA DEBUG
+
+    // SE CREA EL OBJETO DE CONEXIÓN ASÍNCRONA AL SERVIDOR
+    var client = getXMLHttpRequest();
+    client.open('POST', './backend/read.php', true);
+    client.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    client.onreadystatechange = function () {
+        // SE VERIFICA SI LA RESPUESTA ESTÁ LISTA Y FUE SATISFACTORIA
+        if (client.readyState == 4 && client.status == 200) {
+            console.log('[CLIENTE]\n'+client.responseText);
+            
+            // SE OBTIENE EL ARRAY DE PRODUCTOS A PARTIR DE UN STRING JSON
+            let productos = JSON.parse(client.responseText);
+            
+            // SE VERIFICA SI EL ARRAY TIENE DATOS
+            if(Array.isArray(productos) && productos.length > 0) {
+                // SE CREA UNA PLANTILLA PARA TODAS LAS FILAS
+                let template = '';
+                
+                // SE RECORRE CADA PRODUCTO ENCONTRADO
+                productos.forEach(function(producto) {
+                    // SE CREA UNA LISTA HTML CON LA DESCRIPCIÓN DEL PRODUCTO
+                    let descripcion = '';
+                    descripcion += '<li>precio: '+producto.precio+'</li>';
+                    descripcion += '<li>unidades: '+producto.unidades+'</li>';
+                    descripcion += '<li>modelo: '+producto.modelo+'</li>';
+                    descripcion += '<li>marca: '+producto.marca+'</li>';
+                    descripcion += '<li>detalles: '+producto.detalles+'</li>';
+                    
+                    // SE AGREGA LA FILA DEL PRODUCTO AL TEMPLATE
+                    template += `
+                        <tr>
+                            <td>${producto.id}</td>
+                            <td>${producto.nombre}</td>
+                            <td><ul>${descripcion}</ul></td>
+                        </tr>
+                    `;
+                });
+
+                // SE INSERTA LA PLANTILLA EN EL ELEMENTO CON ID "productos"
+                document.getElementById("productos").innerHTML = template;
+            } else {
+                console.log('No se encontraron productos');
+                // SI NO HAY PRODUCTOS, MOSTRAR MENSAJE
+                document.getElementById("productos").innerHTML = '<tr><td colspan="3">No se encontraron productos</td></tr>';
+            }
+        }
+    };
+    // SE ENVÍA EL PARÁMETRO "search" EN LUGAR DE "id"
+    client.send("search="+search);
+}
+
+// FUNCIÓN CALLBACK DE BOTÓN "Buscar por ID" (ORIGINAL)
 function buscarID(e) {
-    /**
-     * Revisar la siguiente información para entender porqué usar event.preventDefault();
-     * http://qbit.com.mx/blog/2013/01/07/la-diferencia-entre-return-false-preventdefault-y-stoppropagation-en-jquery/#:~:text=PreventDefault()%20se%20utiliza%20para,escuche%20a%20trav%C3%A9s%20del%20DOM
-     * https://www.geeksforgeeks.org/when-to-use-preventdefault-vs-return-false-in-javascript/
-     */
     e.preventDefault();
 
     // SE OBTIENE EL ID A BUSCAR
@@ -30,7 +84,7 @@ function buscarID(e) {
             console.log('[CLIENTE]\n'+client.responseText);
             
             // SE OBTIENE EL OBJETO DE DATOS A PARTIR DE UN STRING JSON
-            let productos = JSON.parse(client.responseText);    // similar a eval('('+client.responseText+')');
+            let productos = JSON.parse(client.responseText);
             
             // SE VERIFICA SI EL OBJETO JSON TIENE DATOS
             if(Object.keys(productos).length > 0) {
