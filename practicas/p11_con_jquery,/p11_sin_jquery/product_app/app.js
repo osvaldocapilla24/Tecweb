@@ -86,8 +86,45 @@ $(document).ready(function() {
         e.preventDefault();
 
         var productoJsonString = $('#description').val();
-        var finalJSON = JSON.parse(productoJsonString);
-        finalJSON['nombre'] = $('#name').val();
+        
+        // VALIDACIÓN 1: Verificar que el JSON sea válido
+        var finalJSON;
+        try {
+            finalJSON = JSON.parse(productoJsonString);
+        } catch(error) {
+            alert('ERROR: El formato JSON no es válido. Revisa que no falten comas, llaves o comillas.');
+            return false;
+        }
+        
+        // VALIDACIÓN 2: Verificar que el nombre no esté vacío
+        var nombre = $('#name').val().trim();
+        if (nombre === '') {
+            alert('ERROR: El nombre del producto es obligatorio');
+            return false;
+        }
+        
+        // VALIDACIÓN 3: Verificar campos obligatorios del JSON
+        if (!finalJSON.marca || finalJSON.marca.trim() === '') {
+            alert('ERROR: La marca del producto es obligatoria');
+            return false;
+        }
+        
+        if (!finalJSON.modelo || finalJSON.modelo.trim() === '') {
+            alert('ERROR: El modelo del producto es obligatorio');
+            return false;
+        }
+        
+        if (!finalJSON.precio || finalJSON.precio <= 0) {
+            alert('ERROR: El precio debe ser mayor a 0');
+            return false;
+        }
+        
+        if (!finalJSON.unidades || finalJSON.unidades < 0) {
+            alert('ERROR: Las unidades deben ser 0 o mayor');
+            return false;
+        }
+        
+        finalJSON['nombre'] = nombre;
         
         // Verificar si es edición o inserción
         var productId = $('#productId').val();
