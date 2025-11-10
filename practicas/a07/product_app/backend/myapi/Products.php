@@ -166,5 +166,10 @@ class Products extends DataBase {
     public function getData() {
         return json_encode($this->data, JSON_PRETTY_PRINT);
     }
+    
+    // Devuelve los datos como array
+    public function getResponse() {
+        return $this->data;
+    }
 }
 ?>
