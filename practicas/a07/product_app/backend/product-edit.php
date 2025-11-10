@@ -1,47 +1,16 @@
 <?php
-    include_once __DIR__.'/database.php';
+use TECWEB\MYAPI\Products;
 
-    // SE OBTIENE LA INFORMACIÓN DEL PRODUCTO ENVIADA POR EL CLIENTE
-    $producto = file_get_contents('php://input');
-    $data = array(
-        'status'  => 'error',
-        'message' => 'ERROR: No se pudo actualizar el producto'
-    );
+require_once __DIR__ . '/myapi/Products.php';
 
-    if(!empty($producto)) {
-        // SE TRANSFORMA EL STRING DEL JSON A OBJETO
-        $jsonOBJ = json_decode($producto);
-        
-        // SE ASUME QUE LOS DATOS YA FUERON VALIDADOS ANTES DE ENVIARSE
-        $id = $jsonOBJ->id;
-        $nombre = $jsonOBJ->nombre;
-        $marca = $jsonOBJ->marca;
-        $modelo = $jsonOBJ->modelo;
-        $precio = $jsonOBJ->precio;
-        $detalles = $jsonOBJ->detalles;
-        $unidades = $jsonOBJ->unidades;
-        $imagen = $jsonOBJ->imagen;
+$producto = file_get_contents('php://input');
 
-        // SE CREA EL QUERY PARA ACTUALIZAR
-        $sql = "UPDATE productos SET 
-                nombre = '{$nombre}', 
-                marca = '{$marca}',
-                modelo = '{$modelo}',
-                precio = {$precio},
-                detalles = '{$detalles}',
-                unidades = {$unidades},
-                imagen = '{$imagen}'
-                WHERE id = {$id}";
-
-        if($conexion->query($sql)){
-            $data['status'] = "success";
-            $data['message'] = "Producto actualizado correctamente";
-        } else {
-            $data['message'] = "ERROR: No se ejecutó $sql. " . mysqli_error($conexion);
-        }
-    }
-
-    // SE HACE LA CONVERSIÓN DE ARRAY A JSON
-    echo json_encode($data, JSON_PRETTY_PRINT);
-    $conexion->close();
+if (!empty($producto)) {
+    $jsonOBJ = json_decode($producto);
+    
+    $productos = new Products('marketzone');
+    $productos->edit($jsonOBJ);
+    
+    echo $productos->getData();
+}
 ?>
