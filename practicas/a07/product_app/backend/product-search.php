@@ -1,11 +1,11 @@
 <?php
-use TECWEB\MYAPI\Products;
+require_once __DIR__ . '/vendor/autoload.php';
 
-require_once __DIR__ . '/myapi/Products.php';
+use TECWEB\MYAPI\Read\Read;
 
 $search = $_GET['search'] ?? '';
 
-$productos = new Products('marketzone');
+$productos = new Read('marketzone');
 $productos->search($search);
 
 echo $productos->getData();

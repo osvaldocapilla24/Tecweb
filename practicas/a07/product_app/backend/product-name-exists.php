@@ -1,12 +1,12 @@
 <?php
-use TECWEB\MYAPI\Products;
+require_once __DIR__ . '/vendor/autoload.php';
 
-require_once __DIR__ . '/myapi/Products.php';
+use TECWEB\MYAPI\Read\Read;
 
 $nombre = $_GET['nombre'] ?? '';
 $id = $_GET['id'] ?? 0;
 
-$productos = new Products('marketzone');
+$productos = new Read('marketzone');
 $productos->singleByName($nombre, $id);
 
 $data = json_decode($productos->getData(), true);
